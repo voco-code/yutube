@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>HuTube</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0b0d12;color:#fff;font:15px system-ui,"Segoe UI",sans-serif;overflow:hidden}
+button{background:none;border:0;color:inherit;font:inherit;cursor:pointer}
+input{font:inherit;color:inherit}
+#intro{position:fixed;inset:0;background:#0b0d12;z-index:99;display:grid;place-items:center;font-size:110px;font-weight:800;transition:opacity 1s}
+#ch{display:inline-block;transition:transform 1.8s ease-in,opacity 1.8s}
+#ch.zoom{transform:scale(45);opacity:0}
+.spin{animation:sp .8s ease-in-out}
+@keyframes sp{to{transform:rotateY(360deg)}}
+header{position:fixed;top:0;left:0;right:0;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#0b0d12;z-index:5}
+.logo{font-size:22px;font-weight:800}
+.hr{display:flex;gap:18px;align-items:center}
+#bp{width:34px;height:34px;border-radius:50%;overflow:hidden;display:grid;place-items:center}
+#bp img{width:100%;height:100%;object-fit:cover}
+#bar{position:fixed;top:0;left:0;right:0;height:56px;background:#0b0d12;z-index:8;display:none;align-items:center;gap:12px;padding:0 12px}
+#bar.on{display:flex}
+#qi{flex:1;background:#1a1e29;border:0;border-radius:20px;padding:9px 16px;outline:0}
+#qi::placeholder{color:#8a90a2}
+#ql{position:fixed;top:56px;left:0;right:0;z-index:8;background:#0b0d12;display:none}
+#ql.on{display:block}
+#ql div{padding:13px 20px;border-bottom:1px solid #1a1e29}
+main{position:fixed;top:56px;bottom:68px;left:0;right:0;overflow-y:auto;padding:8px 12px 20px}
+main h2{margin:4px 4px 12px}
+.ld{position:absolute;inset:0;margin:auto;width:56px;height:56px;border:6px solid #1e3a8a;border-top-color:#2563eb;border-radius:50%;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.card{margin-bottom:20px;cursor:pointer}
+.card img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px;background:#1a1e29;display:block}
+.card h3{margin:8px 2px 2px;font-size:16px}
+.card p,.mut{color:#8a90a2;font-size:13px;margin:0 2px}
+.msg{text-align:center;color:#8a90a2;padding:60px 20px}
+nav{position:fixed;bottom:0;left:0;right:0;height:68px;background:#0b0d12;border-top:1px solid #1a1e29;display:flex;justify-content:space-around;align-items:center;z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;width:80px}
+nav button.on{color:#3b82f6}
+.add{width:50px;height:50px;border-radius:50%;border:3px solid #fff;position:relative}
+.ic{position:relative;display:inline-block;width:26px;height:26px}
+.ic::before,.ic::after,.add::before,.add::after,.x::before,.x::after,.pz::before,.pz::after{content:"";position:absolute}
+.home::before{left:1px;top:1px;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:10px solid currentColor}
+.home::after{left:5px;top:11px;width:16px;height:13px;background:currentColor;border-radius:0 0 3px 3px}
+.fire::before{left:4px;top:1px;width:18px;height:24px;background:currentColor;border-radius:50% 50% 50% 50%/65% 65% 35% 35%}
+.fire::after{left:9px;top:13px;width:8px;height:11px;background:#0b0d12;border-radius:50%}
+.srch::before{left:2px;top:2px;width:17px;height:17px;border:3px solid #fff;border-radius:50%}
+.srch::after{left:16px;top:20px;width:10px;height:3px;background:#fff;transform:rotate(45deg);transform-origin:left}
+.add::before{left:11px;top:23px;width:20px;height:3px;background:#fff;top:20px;left:12px}
+.add::after{left:20px;top:12px;width:3px;height:20px;background:#fff;left:20px}
+.add::before{width:20px;height:3px;left:12px;top:20px}
+.user::before{left:8px;top:1px;width:10px;height:10px;border-radius:50%;background:#fff}
+.user::after{left:3px;top:13px;width:20px;height:11px;border-radius:10px 10px 2px 2px;background:#fff}
+.like::before{left:3px;top:3px;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:12px solid currentColor}
+.like::after{left:8px;top:14px;width:10px;height:10px;background:currentColor;border-radius:0 0 3px 3px}
+.dis{transform:rotate(180deg)}
+.x{width:26px;height:26px;display:inline-block;position:relative}
+.x::before,.x::after{left:2px;top:12px;width:22px;height:3px;background:#fff;transform:rotate(45deg);border-radius:2px}
+.x::after{transform:rotate(-45deg)}
+.sq{display:block;width:16px;height:16px;border:3px solid #fff;border-radius:3px}
+.pz{display:block;position:relative;width:24px;height:26px}
+.pz::before,.pz::after{top:2px;width:7px;height:22px;background:#fff;border-radius:2px;left:3px}
+.pz::after{left:14px}
+.pz.play::before{width:0;height:0;background:none;border-left:20px solid #fff;border-top:12px solid transparent;border-bottom:12px solid transparent;border-radius:0;left:4px;top:1px}
+.pz.play::after{display:none}
+.flip{display:block;width:26px;height:26px;border:3px solid #fff;border-top-color:transparent;border-radius:50%}
+.ov{position:fixed;inset:0;background:#0b0d12;z-index:20;display:none;overflow-y:auto}
+.ov.on{display:block}
+.vw{position:relative;background:#000}
+.vw video{width:100%;max-height:60vh;display:block;margin:auto}
+.vw:fullscreen video{max-height:100vh;height:100%;object-fit:contain}
+.pbtn{position:absolute;inset:0;margin:auto;width:64px;height:64px;border-radius:50%;background:#000a;display:grid;place-items:center;opacity:0;transition:opacity .3s}
+.vw.show .pbtn,.vw.paused .pbtn{opacity:1}
+.fs{position:absolute;right:10px;bottom:10px;width:38px;height:38px;border-radius:50%;background:#000a;display:grid;place-items:center}
+.info{padding:12px 16px}
+.info h2{font-size:18px}
+.row{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+.row button{margin-left:14px}
+.row .ic{color:#fff}
+.md{position:fixed;inset:0;background:#000a;z-index:40;display:none;place-items:center;padding:16px}
+.md.on{display:grid}
+.box{background:#161a22;border-radius:18px;width:min(340px,100%);aspect-ratio:1;padding:22px;display:flex;flex-direction:column;justify-content:center;gap:12px;position:relative}
+.box.wide{aspect-ratio:auto;max-height:85vh;overflow-y:auto;justify-content:flex-start}
+.box h2{text-align:center;color:#fff}
+.box input,.row2 input{background:#0b0d12;border:1px solid #2a2f3d;border-radius:10px;padding:11px 12px;width:100%}
+.blue{background:#2563eb;color:#fff;border-radius:10px;padding:11px;font-weight:700}
+.err{color:#f87171;font-size:13px;min-height:16px;text-align:center}
+.sw{text-align:center;font-size:14px}
+.sw a{color:#3b82f6;cursor:pointer}
+.ph{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.av{width:48px;height:48px;border-radius:50%;background:#2a2f3d;overflow:hidden;display:grid;place-items:center;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}
+.box>button,.box>label{text-align:left;padding:11px 4px;border-bottom:1px solid #222735;cursor:pointer}
+.row2{display:flex;gap:8px;padding:8px 0}
+.hx{position:absolute;left:10px;top:10px}
+.hl{margin-top:34px;overflow-y:auto}
+.hl .card{display:flex;gap:10px;margin-bottom:12px}
+.hl .card img{width:110px;flex:none}
+#sh{background:#000;scroll-snap-type:y mandatory}
+.si{position:relative;height:100vh;scroll-snap-align:start;background:#000;display:grid;place-items:center}
+.si video{width:100%;height:100%;object-fit:contain}
+.sb{position:absolute;right:12px;bottom:110px;display:flex;flex-direction:column;gap:22px;align-items:center;font-size:13px}
+.sb button{display:flex;flex-direction:column;align-items:center;gap:4px}
+.st{position:absolute;left:14px;bottom:36px;right:80px;text-shadow:0 1px 4px #000}
+.big{position:absolute;inset:0;margin:auto;width:90px;height:90px;pointer-events:none;opacity:0;color:#fff}
+.big .ic{transform:scale(3.4);transform-origin:top left}
+.big.go{animation:pop 1s ease-out}
+@keyframes pop{0%{opacity:0;transform:translateY(40px) scale(.6)}25%{opacity:1;transform:translateY(0) scale(1)}70%{opacity:1;transform:translateY(-8px)}100%{opacity:0;transform:translateY(-30px)}}
+#cam{background:#000}
+#cam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#tm{position:absolute;top:18px;left:0;right:0;text-align:center;font-weight:700;font-size:18px}
+.cb{position:absolute;bottom:34px;left:0;right:0;display:flex;justify-content:center;align-items:center}
+.rec{width:72px;height:72px;border-radius:50%;background:#2563eb;border:4px solid #fff;display:grid;place-items:center}
+.rec i{display:none;width:26px;height:26px;background:#fff;border-radius:4px}
+.rec.on i{display:block}
+.cb .flip{position:absolute;right:30px}
+.cx{position:absolute;left:14px;top:14px}
+.upl{position:absolute;left:30px;padding:10px 16px;background:#1a1e29;border-radius:20px;font-size:14px;cursor:pointer}
+.ed{display:flex;flex-direction:column;gap:16px;padding:60px 18px;max-width:520px;margin:auto}
+.ed .r{display:flex;gap:12px;align-items:center}
+.ed img{width:96px;height:96px;object-fit:cover;border-radius:10px;background:#1a1e29}
+.ed input{flex:1;background:none;border:0;border-bottom:1px solid #2a2f3d;padding:10px 4px;outline:0}
+.ed input::placeholder{color:#8a90a2}
+.pub{background:#fff;color:#000;font-weight:700;border-radius:12px;padding:13px}
+#sa{position:fixed;inset:0;background:#000a;z-index:45;display:grid;place-items:center;padding:12px;visibility:hidden}
+#sa.on{visibility:visible}
+#sa .fr{position:relative;width:min(460px,100%);height:min(640px,92vh);border-radius:18px;overflow:hidden;background:#e9edf8}
+#sa iframe{width:100%;height:100%;border:0;display:block}
+#sa .cl{position:absolute;right:8px;top:8px;width:34px;height:34px;border-radius:50%;background:#000a;z-index:2;display:grid;place-items:center}
+#tt{position:fixed;top:40%;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:16px 22px;border-radius:14px;z-index:60;text-align:center;display:none;max-width:86vw;font-weight:600}
+</style>
+</head>
+<body>
+<div id="intro"><span id="ch">H</span></div>
+<header><b class="logo">HuTube</b><div class="hr"><button id="bs" aria-label="Поиск"><i class="ic srch"></i></button><button id="bp" aria-label="Профиль"></button></div></header>
+<div id="bar"><button id="bx" aria-label="На главную"><i class="x"></i></button><input id="qi" placeholder="Поиск на HuTube" autocomplete="off"></div>
+<div id="ql"></div>
+<main id="main"></main>
+<nav>
+  <button data-t="home" class="on"><i class="ic home"></i><span>Главная</span></button>
+  <button id="ba" class="add" aria-label="Снять видео"></button>
+  <button data-t="trend"><i class="ic fire"></i><span>В тренде</span></button>
+</nav>
+<div id="pl" class="ov"></div><div id="sh" class="ov"></div><div id="cam" class="ov"></div>
+<div id="nc" class="md"></div><div id="hs" class="md"></div><div id="pf" class="md"></div>
+<div id="sa"><div class="fr"><button class="cl" aria-label="Закрыть"><i class="x"></i></button></div></div>
+<div id="tt"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getDatabase,ref,onValue,set,update,push,runTransaction,get,remove} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* Ключ скопируй из консоли Firebase точно, с большими и маленькими буквами */
+const app = initializeApp({
+  apiKey: "aizasymbmvkkouvg9wlyuri8fg7qnrsn6wszyjk0",
+  authDomain: "hutube-8975a.firebaseapp.com",
+  databaseURL: "https://hutube-8975a-default-rtdb.firebaseio.com",
+  projectId: "hutube-8975a",
+  storageBucket: "hutube-8975a.firebasestorage.app",
+  messagingSenderId: "431212759514",
+  appId: "1:431212759514:web:12d646cc293808b58f18e3"
+});
+const auth = getAuth(app), db = getDatabase(app);
+const LOAD_MS = 10000; // время загрузки при переходах
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fmt = n => n >= 1e6 ? (n/1e6).toFixed(1) + ' млн' : n >= 1e3 ? (n/1e3).toFixed(1) + ' тыс.' : n;
+let V = {}, U = {}, me = null, tok = 0, pending = null, tab = 'home';
+const voted = new Set();
+
+/* ---------- Хостинг видео в Firebase БЕЗ Storage (бесплатно, Spark) ----------
+   Файл MP4 режется на куски base64 и лежит в Realtime Database: videoFiles/<id>/p0, p1, ...
+   В ленте (videos/<id>) только название, обложка и данные — сами файлы грузятся по требованию. */
+const CHUNK = 750000; // символов base64 на кусок (кратно 4): крупные куски = меньше запросов = быстрее
+const urlCache = {}, MAXV = 200e6;
+const fileDur = b => new Promise(res => {
+  const v = document.createElement('video'), u = URL.createObjectURL(b); v.preload = 'metadata'; v.src = u;
+  v.onloadedmetadata = () => { res(isFinite(v.duration) ? Math.round(v.duration) : 0); URL.revokeObjectURL(u); };
+  v.onerror = () => res(0);
+});
+const b64ToBytes = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+function videoUrl(id, k = 0) {
+  const v = V[id]; if (!v) return Promise.reject(new Error('no video'));
+  if (v.video) return Promise.resolve(v.video); // старые видео, лежащие прямо в записи
+  const key = id + ':' + k;
+  return urlCache[key] || (urlCache[key] = (async () => {
+    const N = v.segs ? v.segs[k] : (v.parts || 0), base = `videoFiles/${id}/${v.segs ? 's' + k + '/' : ''}p`, out = new Array(N);
+    let next = 0, done = 0;
+    await Promise.all(Array.from({length: Math.min(16, N)}, async () => {
+      while (next < N) {
+        const q = next++; out[q] = b64ToBytes((await get(ref(db, base + q))).val() || '');
+        if (N > 20 && ++done) toast(`Загрузка видео ${Math.round(done / N * 100)}%`);
+      }
+    }));
+    return URL.createObjectURL(new Blob(out, {type: v.mime || 'video/mp4'}));
+  })().catch(e => { delete urlCache[key]; throw e; }));
+}
+
+onValue(ref(db, 'videos'), s => { V = s.val() || {}; });
+onValue(ref(db, 'users'), s => { U = s.val() || {}; hdr(); });
+onAuthStateChanged(auth, u => {
+  if (u && !(u.email || '').endsWith(CH_DOMAIN)) { signOut(auth); return; } // старые входы по почте больше не работают
+  me = u; hdr(); if (u && pending) publish();
+});
+
+const ids = () => Object.keys(V).filter(i => V[i].video || V[i].ready).sort((a, b) => (V[b].created || 0) - (V[a].created || 0));
+const isShort = v => v.dur >= 5 && v.dur <= 60;
+const subsN = uid => Object.keys((U[uid] || {}).subs || {}).length;
+const chName = v => (U[v.uid] || {}).channel || 'Канал';
+const toast = t => { const e = $('#tt'); e.textContent = t; e.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(() => e.style.display = 'none', 3000); };
+
+/* ---------- S Account: вход, каналы, подключение сервиса ---------- */
+const SA_ORIGIN = 'https://voco-code.github.io', SA_URL = SA_ORIGIN + '/saccount/?embed=1';
+const CH_DOMAIN = '@yutube.semyonmail.com';
+let saState = {signedIn: false}, saMode = 'auth', saReady = false, rid = 0, chans = {}, curCh = null, chKey = '', syncQ = Promise.resolve();
+const waits = {}, saBox = $('#sa'), saf = document.createElement('iframe');
+saf.src = SA_URL; saf.title = 'S Account';
+saBox.querySelector('.fr').appendChild(saf);
+saf.onload = () => { saReady = true; saf.contentWindow.postMessage({sa: 1, op: 'hello'}, SA_ORIGIN); };
+const saCall = (op, args) => new Promise((res, rej) => {
+  if (!saReady) return rej(new Error('S Account ещё загружается'));
+  const id = ++rid; waits[id] = {res, rej};
+  setTimeout(() => { if (waits[id]) { delete waits[id]; rej(new Error('timeout')); } }, 15000);
+  saf.contentWindow.postMessage({sa: 1, id, op, args}, SA_ORIGIN);
+});
+addEventListener('message', e => {
+  if (e.origin !== SA_ORIGIN || e.source !== saf.contentWindow) return;
+  const d = e.data; if (!d || d.sa !== 1) return;
+  if (d.id && waits[d.id]) { const w = waits[d.id]; delete waits[d.id]; d.ok ? w.res(d.data) : w.rej(new Error(d.data)); }
+  else if (d.type === 'state') onSA(d.state);
+});
+const openSA = mode => { saMode = mode; saBox.classList.add('on'); };
+const closeSA = () => saBox.classList.remove('on');
+saBox.querySelector('.cl').onclick = closeSA;
+saBox.onclick = e => { if (e.target === saBox) closeSA(); };
+
+const chEmail = id => saState.uid.toLowerCase() + '.' + id + CH_DOMAIN;
+const rndKey = () => Array.from(crypto.getRandomValues(new Uint8Array(24)), b => b.toString(16).padStart(2, '0')).join('');
+const handleOf = n => '@' + (n.toLowerCase().replace(/[^\p{L}\p{N}_]/gu, '') || 'channel');
+
+function onSA(s) { if (s && s.booted) syncQ = syncQ.then(() => handleSA(s)).catch(() => {}); }
+async function handleSA(s) {
+  const same = saState.signedIn && s.signedIn && saState.uid === s.uid && saState.connected === s.connected && me;
+  saState = s;
+  if (!s.signedIn) { chans = {}; curCh = null; if (me) await signOut(auth).catch(() => {}); hdr(); return; }
+  if (saBox.classList.contains('on') && (saMode !== 'svc' || s.connected)) closeSA();
+  if (same) return;
+  if (!s.connected) {
+    chans = {}; if (me) await signOut(auth).catch(() => {}); hdr();
+    if (!saBox.classList.contains('on')) notConnected();
+    return;
+  }
+  $('#nc').classList.remove('on');
+  try {
+    const data = await saCall('get', {path: ''}) || {};
+    if (!data.key) { data.key = rndKey(); await saCall('set', {path: 'key', value: data.key}); }
+    chKey = data.key; chans = data.channels || {};
+    const ids = Object.keys(chans);
+    if (!ids.length) await newChannel(s.name || s.nick);
+    else { const saved = localStorage.getItem('hu:ch:' + s.uid); await useChannel(chans[saved] ? saved : ids[0]); }
+  } catch (x) { toast('Не удалось подтянуть каналы из S Account'); }
+}
+async function useChannel(id) {
+  const c = chans[id], em = chEmail(id);
+  if (!me || me.email !== em) {
+    try { await signInWithEmailAndPassword(auth, em, chKey); }
+    catch (x) {
+      if (x.code !== 'auth/invalid-credential' && x.code !== 'auth/user-not-found') throw x;
+      const cr = await createUserWithEmailAndPassword(auth, em, chKey); // в базе YuTube канала нет — восстанавливаем из S Account
+      await set(ref(db, 'users/' + cr.user.uid), {channel: c.name, handle: c.handle || handleOf(c.name), avatar: c.avatar || '', desc: c.desc || ''});
+    }
+  }
+  curCh = id; localStorage.setItem('hu:ch:' + saState.uid, id);
+}
+async function newChannel(name) {
+  name = (name || '').trim().slice(0, 30) || 'Канал';
+  const id = 'c' + Math.random().toString(36).slice(2, 10), cr = await createUserWithEmailAndPassword(auth, chEmail(id), chKey);
+  const ch = {name, handle: handleOf(name), avatar: '', desc: '', huid: cr.user.uid, created: Date.now()};
+  await set(ref(db, 'users/' + cr.user.uid), {channel: ch.name, handle: ch.handle, avatar: '', desc: ''}); // база YuTube
+  await saCall('set', {path: 'channels/' + id, value: ch}); // база S Account
+  chans[id] = ch; curCh = id; localStorage.setItem('hu:ch:' + saState.uid, id);
+}
+const syncCh = patch => curCh && saCall('update', {path: 'channels/' + curCh, value: patch}).catch(() => toast('Не удалось сохранить в S Account'));
+function needAuth() {
+  if (!saState.signedIn) return openSA('auth');
+  if (!saState.connected) return notConnected();
+  toast('Подключаем канал…');
+}
+function notConnected() {
+  const n = $('#nc');
+  n.innerHTML = `<div class="box"><h2>YuTube</h2><div class="sw">Сервис не подключен. Нажмите Подключить у YuTube</div><button class="blue" data-a="c">Подключить</button><button data-a="s">Сменить аккаунт</button></div>`;
+  n.classList.add('on');
+  n.onclick = e => {
+    if (e.target === n) return n.classList.remove('on');
+    const a = e.target.dataset.a; if (!a) return;
+    n.classList.remove('on');
+    if (a === 'c') { openSA('svc'); saCall('services').catch(() => {}); }
+    if (a === 's') switchAccount();
+  };
+}
+function switchAccount() { openSA('switch'); saCall('accounts').catch(() => {}); }
+
+/* ---------- Интро ---------- */
+(async () => {
+  const c = $('#ch');
+  const swap = async ch => { c.classList.remove('spin'); void c.offsetWidth; c.classList.add('spin'); await sleep(400); c.textContent = ch; await sleep(1100); };
+  await sleep(5000);
+  await swap('🎮'); await swap('🚫'); await swap('👁️');
+  c.classList.add('zoom'); await sleep(1500);
+  $('#intro').style.opacity = 0; await sleep(1000); $('#intro').remove();
+})();
+go('home');
+
+/* ---------- Шапка, аватар ---------- */
+function avatarHtml(uid) { const a = (U[uid] || {}).avatar; return a ? `<img src="${a}" alt="">` : '<i class="ic user"></i>'; }
+function hdr() { $('#bp').innerHTML = me ? avatarHtml(me.uid) : '<i class="ic user"></i>'; }
+$('#bp').onclick = () => { if (me) profile(); else needAuth(); };
+
+/* ---------- Лента ---------- */
+async function load(fn) {
+  const t = ++tok, t0 = Date.now(), m = $('#main');
+  m.innerHTML = '<div class="ld"></div>';
+  while (Date.now() - t0 < LOAD_MS || !Object.keys(V).length) { await sleep(250); if (t !== tok) return; }
+  fn(m);
+}
+const card = id => { const v = V[id]; return `<div class="card" data-id="${id}"><img src="${v.thumb || ''}" alt=""><h3>${esc(v.title)}</h3><p>${fmt(v.views || 0)} просмотров · ${fmt(v.likes || 0)} лайков</p></div>`; };
+const grid = (m, list, title, empty) => { m.innerHTML = (title ? `<h2>${title}</h2>` : '') + (list.length ? list.map(card).join('') : `<div class="msg">${empty}</div>`); };
+function go(t) {
+  tab = t;
+  document.querySelectorAll('nav [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  closeSearch();
+  if (t === 'home') load(m => grid(m, ids(), '', 'Видео пока нет'));
+  else load(m => grid(m, ids().filter(i => { const v = V[i]; return (v.views || 0) >= 5e5 && (v.likes || 0) >= 1000 && subsN(v.uid) < 2000; }), 'В тренде', 'Пока нет видео в тренде'));
+}
+document.querySelectorAll('nav [data-t]').forEach(b => b.onclick = () => go(b.dataset.t));
+document.addEventListener('click', e => { const c = e.target.closest('.card'); if (c) { $('#hs').classList.remove('on'); openVideo(c.dataset.id); } });
+const openVideo = id => isShort(V[id]) ? shorts(id) : player(id);
+
+/* ---------- Поиск ---------- */
+const hist = () => JSON.parse(localStorage.getItem('hu:q') || '[]');
+function openSearch() {
+  $('#bar').classList.add('on'); $('#qi').value = ''; $('#qi').focus();
+  $('#ql').innerHTML = hist().map(q => `<div>${esc(q)}</div>`).join(''); $('#ql').classList.add('on');
+}
+function closeSearch() { $('#bar').classList.remove('on'); $('#ql').classList.remove('on'); }
+$('#bs').onclick = openSearch;
+$('#bx').onclick = () => go('home');
+$('#ql').onclick = e => { if (e.target.tagName === 'DIV' && e.target !== $('#ql')) { $('#qi').value = e.target.textContent; search(); } };
+$('#qi').onkeydown = e => { if (e.key === 'Enter') search(); };
+function search() {
+  const q = $('#qi').value.trim(); if (!q) return;
+  localStorage.setItem('hu:q', JSON.stringify([q, ...hist().filter(x => x !== q)].slice(0, 15)));
+  $('#ql').classList.remove('on'); $('#qi').blur();
+  load(m => grid(m, ids().filter(i => (V[i].title + chName(V[i])).toLowerCase().includes(q.toLowerCase())), '', 'Ничего не найдено'));
+}
+
+/* ---------- Реакции, просмотры, история ---------- */
+function react(id, k) {
+  if (!me) return needAuth();
+  if (voted.has(id + k)) return; voted.add(id + k);
+  runTransaction(ref(db, `videos/${id}/${k}`), n => (n || 0) + 1);
+}
+function seen(id) {
+  runTransaction(ref(db, `videos/${id}/views`), n => (n || 0) + 1);
+  if (me) set(ref(db, `users/${me.uid}/history/${id}`), Date.now());
+}
+
+/* ---------- Плеер ---------- */
+function player(id) {
+  const v = V[id], p = $('#pl'); seen(id);
+  const recs = ids().filter(i => i !== id).map(card).join('');
+  p.innerHTML = `<div class="vw show"><video playsinline autoplay loop></video><button class="pbtn" aria-label="Пауза"><i class="pz"></i></button><button class="fs" aria-label="Во весь экран"><i class="sq"></i></button></div>
+  <div class="info"><h2>${esc(v.title)}</h2><p class="mut">${fmt((v.views || 0) + 1)} просмотров · ${fmt(v.likes || 0)} лайков</p>
+  <div class="row"><b class="chn" data-u="${v.uid}">${esc(chName(v))}</b><span><button data-r="likes" aria-label="Нравится"><i class="ic like"></i></button><button data-r="dislikes" aria-label="Не нравится"><i class="ic like dis"></i></button></span></div>
+  <h3 style="margin:14px 0 10px">Рекомендации</h3>${recs}</div>`;
+  p.classList.add('on'); p.scrollTop = 0;
+  const w = p.querySelector('.vw'), vid = w.querySelector('video'), pz = w.querySelector('.pz');
+  const nSeg = v.segs ? v.segs.length : 1; let cur = 0;
+  const playSeg = j => videoUrl(id, j).then(u => { vid.src = u; vid.play().catch(() => {}); if (j + 1 < nSeg) videoUrl(id, j + 1).catch(() => {}); }).catch(() => toast('Не удалось загрузить видео'));
+  if (nSeg > 1) { vid.loop = false; vid.onended = () => { cur = (cur + 1) % nSeg; playSeg(cur); }; }
+  playSeg(0);
+  const sync = () => { pz.classList.toggle('play', vid.paused); w.classList.toggle('paused', vid.paused); };
+  vid.onplay = vid.onpause = sync;
+  w.onclick = e => {
+    if (e.target.closest('.fs')) { fullscreen(w, vid); return; }
+    vid.paused ? vid.play() : vid.pause();
+    w.classList.add('show'); clearTimeout(w.t); w.t = setTimeout(() => w.classList.remove('show'), 1500);
+  };
+  let y0 = 0;
+  w.ontouchstart = e => y0 = e.touches[0].clientY;
+  w.ontouchend = e => {
+    const dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dy) < 80) return;
+    if (dy < 0 && document.fullscreenElement) document.exitFullscreen();
+    if (dy > 0) { if (document.fullscreenElement) document.exitFullscreen(); closePlayer(); }
+  };
+  p.onclick = e => {
+    const r = e.target.closest('[data-r]'); if (r) react(id, r.dataset.r);
+    const c = e.target.closest('.chn'); if (c) { closePlayer(); channel(c.dataset.u); }
+  };
+}
+function closePlayer() { const p = $('#pl'); p.querySelectorAll('video').forEach(v => v.pause()); p.classList.remove('on'); p.innerHTML = ''; }
+async function fullscreen(w, vid) {
+  try {
+    await w.requestFullscreen();
+    await screen.orientation.lock(vid.videoWidth >= vid.videoHeight ? 'landscape' : 'portrait');
+  } catch (e) {}
+}
+
+/* ---------- Shorts ---------- */
+function shorts(startId) {
+  const s = $('#sh'), list = ids().filter(i => isShort(V[i]));
+  const k = Math.max(0, list.indexOf(startId));
+  const order = [...list.slice(k), ...list.slice(0, k)];
+  s.innerHTML = '<button class="cx" style="z-index:3" aria-label="Закрыть"><i class="x"></i></button>';
+  s.classList.add('on');
+  const add = () => order.forEach(id => {
+    const v = V[id], d = document.createElement('div'); d.className = 'si'; d.dataset.id = id;
+    d.innerHTML = `<video playsinline loop></video><div class="big"><i class="ic like"></i></div>
+    <div class="sb"><button data-r="likes" aria-label="Нравится"><i class="ic like"></i>${fmt(v.likes || 0)}</button><button data-r="dislikes" aria-label="Не нравится"><i class="ic like dis"></i></button></div>
+    <div class="st"><b>${esc(chName(v))}</b><div>${esc(v.title)}</div></div>`;
+    s.appendChild(d); io.observe(d);
+  });
+  const attach = d => { // файл подгружается, когда short показан или следующий за ним
+    const vid = d.querySelector('video');
+    if (!vid.dataset.l) { vid.dataset.l = 1; videoUrl(d.dataset.id).then(u => { vid.src = u; if (vid.dataset.on) vid.play().catch(() => {}); }).catch(() => { delete vid.dataset.l; }); }
+    return vid;
+  };
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    const vid = attach(e.target);
+    if (e.isIntersecting) {
+      vid.dataset.on = 1; vid.play().catch(() => {}); seen(e.target.dataset.id);
+      const nx = e.target.nextElementSibling; if (nx && nx.classList.contains('si')) attach(nx);
+      if (e.target === s.lastElementChild) add();
+    } else { delete vid.dataset.on; vid.pause(); }
+  }), {root: s, threshold: .7});
+  s._io = io; add();
+  let last = 0;
+  s.onclick = e => {
+    if (e.target.closest('.cx')) { io.disconnect(); s.querySelectorAll('video').forEach(v => v.pause()); s.classList.remove('on'); return; }
+    const r = e.target.closest('[data-r]'), it = e.target.closest('.si'); if (!it) return;
+    if (r) return react(it.dataset.id, r.dataset.r);
+    const now = Date.now(), vid = it.querySelector('video');
+    if (now - last < 300) {
+      clearTimeout(s.t); const b = it.querySelector('.big'); b.classList.remove('go'); void b.offsetWidth; b.classList.add('go');
+      react(it.dataset.id, 'likes');
+    } else s.t = setTimeout(() => vid.paused ? vid.play() : vid.pause(), 300);
+    last = now;
+  };
+}
+
+/* ---------- Профиль, канал, история ---------- */
+async function profile() {
+  try { const c = await saCall('get', {path: 'channels'}); if (c) chans = c; } catch (e) {}
+  const u = U[me.uid] || {}, p = $('#pf');
+  const chl = Object.keys(chans).map(id => `<button data-ch="${id}">${id === curCh ? '✓ ' : ''}${esc(chans[id].name)}</button>`).join('');
+  p.innerHTML = `<div class="box wide"><div class="ph"><div class="av">${avatarHtml(me.uid)}</div><div><b>${esc(u.channel)}</b><div class="mut">${esc(u.handle)}</div><div class="mut">S Account: ${esc(saState.nick)}@semyonmail.com</div></div></div>
+  <button data-a="my">Мой канал</button><button data-a="hist">История просмотра</button>
+  <label>Сменить аватарку<input type="file" accept="image/*" hidden id="af"></label>
+  <div class="row2"><input id="cn" value="${esc(u.channel)}" placeholder="Название канала"><button class="blue" data-a="save" style="padding:0 14px">Сохранить</button></div>
+  <div class="mut" style="padding:10px 4px 0">Каналы</div>${chl}<button data-a="newch">+ Новый канал</button>
+  <button data-a="acc">Сменить аккаунт</button><button data-a="out">Выйти</button></div>`;
+  p.classList.add('on');
+  p.onclick = async e => {
+    if (e.target === p) return p.classList.remove('on');
+    const ch = e.target.dataset.ch;
+    if (ch) { p.classList.remove('on'); if (ch !== curCh) { try { await useChannel(ch); go('home'); toast('Канал: ' + chans[ch].name); } catch (x) { toast('Не удалось сменить канал'); } } return; }
+    const a = e.target.dataset.a; if (!a) return;
+    if (a === 'my') { p.classList.remove('on'); channel(me.uid); }
+    if (a === 'hist') { p.classList.remove('on'); history(); }
+    if (a === 'save') { const n = $('#cn').value.trim(); if (n) { await update(ref(db, 'users/' + me.uid), {channel: n}); if (chans[curCh]) chans[curCh].name = n; syncCh({name: n}); toast('Сохранено'); } }
+    if (a === 'newch') { const n = prompt('Название нового канала'); if (n && n.trim()) { p.classList.remove('on'); try { await newChannel(n); go('home'); toast('Канал создан'); } catch (x) { toast('Не удалось создать канал'); } } }
+    if (a === 'acc') { p.classList.remove('on'); switchAccount(); }
+    if (a === 'out') { p.classList.remove('on'); await signOut(auth); saCall('accounts').catch(() => {}); go('home'); }
+  };
+  $('#af').onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const img = new Image(); img.onload = () => {
+      const c = document.createElement('canvas'); c.width = c.height = 128;
+      const s = Math.min(img.width, img.height); c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 128, 128);
+      const av = c.toDataURL('image/jpeg', .8);
+      update(ref(db, 'users/' + me.uid), {avatar: av}).then(() => { if (chans[curCh]) chans[curCh].avatar = av; syncCh({avatar: av}); profile(); });
+    }; img.src = URL.createObjectURL(f);
+  };
+}
+function channel(uid) {
+  const u = U[uid] || {}, mine = me && me.uid === uid, subbed = me && (u.subs || {})[me.uid];
+  const list = ids().filter(i => V[i].uid === uid);
+  const m = $('#main'); tok++;
+  m.innerHTML = `<div style="text-align:center;padding:10px"><div class="av" style="width:84px;height:84px;margin:auto">${avatarHtml(uid)}</div><h2 style="margin:10px 0 2px">${esc(u.channel)}</h2><div class="mut">${esc(u.handle)} · ${fmt(subsN(uid))} подписчиков</div><p style="margin:10px 0">${esc(u.desc)}</p>
+  ${mine ? '' : `<button class="blue" id="sub" style="padding:10px 26px">${subbed ? 'Вы подписаны' : 'Подписаться'}</button>`}</div>${list.length ? list.map(card).join('') : '<div class="msg">Видео пока нет</div>'}`;
+  const b = $('#sub'); if (b) b.onclick = () => { if (!me) return needAuth(); set(ref(db, `users/${uid}/subs/${me.uid}`), subbed ? null : true).then(() => channel(uid)); };
+}
+function history() {
+  const h = (U[me.uid] || {}).history || {}, h2 = $('#hs');
+  const list = Object.keys(h).sort((a, b) => h[b] - h[a]).filter(i => V[i]);
+  h2.innerHTML = `<div class="box wide"><button class="hx" aria-label="Закрыть" style="border:0"><i class="x"></i></button><div class="hl">${list.length ? list.map(card).join('') : '<div class="msg">История пуста</div>'}</div></div>`;
+  h2.classList.add('on');
+  h2.onclick = e => { if (e.target === h2) h2.classList.remove('on'); if (e.target.closest('.hx')) { h2.classList.remove('on'); go('home'); } };
+}
+
+/* ---------- Камера и публикация ---------- */
+let stream, rec, chunks, facing = 'user', t0, tick;
+const cam = $('#cam');
+$('#ba').onclick = openCam;
+async function startStream() {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  stream = await navigator.mediaDevices.getUserMedia({video: {facingMode: facing}, audio: true});
+  cam.querySelector('video').srcObject = stream;
+}
+async function openCam() {
+  cam.innerHTML = `<video autoplay muted playsinline></video><button class="cx" aria-label="Закрыть"><i class="x"></i></button><div id="tm">0:00</div><div class="cb"><label class="upl">Файл<input type="file" accept="video/*" hidden id="vf"></label><button class="rec" aria-label="Запись"><i></i></button><button class="flip" id="fl" aria-label="Перевернуть камеру"></button></div>`;
+  cam.classList.add('on');
+  try { await startStream(); } catch (e) { toast('Нет доступа к камере, можно загрузить файл'); }
+  cam.querySelector('.cx').onclick = closeCam;
+  $('#fl').onclick = async () => { if (rec && rec.state === 'recording') return; facing = facing === 'user' ? 'environment' : 'user'; try { await startStream(); } catch (e) {} };
+  cam.querySelector('.rec').onclick = e => rec && rec.state === 'recording' ? rec.stop() : stream ? record(e.currentTarget) : toast('Нет доступа к камере');
+  $('#vf').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (f.size > MAXV) return toast('Файл больше 200 МБ, сожми его перед загрузкой');
+    const dur = await fileDur(f); if (!dur) return toast('Не удалось прочитать видео');
+    editor(f, dur);
+  };
+}
+function closeCam() { clearInterval(tick); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; cam.classList.remove('on'); cam.innerHTML = ''; }
+function record(btn) {
+  chunks = []; const mt = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4'].find(t => MediaRecorder.isTypeSupported(t)); // сразу MP4, если браузер умеет
+  rec = new MediaRecorder(stream, Object.assign({videoBitsPerSecond: 800000, audioBitsPerSecond: 64000}, mt ? {mimeType: mt} : {}));
+  rec.ondataavailable = e => e.data.size && chunks.push(e.data);
+  rec.onstop = () => { clearInterval(tick); const dur = Math.min(60, Math.round((Date.now() - t0) / 1000)); editor(new Blob(chunks, {type: rec.mimeType || 'video/webm'}), dur); };
+  rec.start(); t0 = Date.now(); btn.classList.add('on');
+  tick = setInterval(() => {
+    const s = (Date.now() - t0) / 1000;
+    const t = Math.min(60, Math.floor(s)); $('#tm').textContent = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
+    if (s >= 60) rec.stop();
+  }, 200);
+}
+function thumbOf(blob) {
+  return new Promise(res => {
+    const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.src = URL.createObjectURL(blob);
+    v.onloadeddata = () => { v.currentTime = 0.2; };
+    v.onseeked = () => {
+      const c = document.createElement('canvas'), w = 360; c.width = w; c.height = Math.round(w * (v.videoHeight || 9) / (v.videoWidth || 16));
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', .7));
+    };
+    v.onerror = () => res('');
+  });
+}
+async function editor(blob, dur) {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  const th = await thumbOf(blob);
+  cam.innerHTML = `<div class="ed"><div class="r"><img src="${th}" alt=""><input id="ti" placeholder="Впишите название видео" maxlength="100"></div><button class="pub">Публиковать</button></div>`;
+  cam.style.background = '#0b0d12';
+  cam.querySelector('.pub').onclick = () => { pending = {blob, dur, th, title: $('#ti').value.trim() || 'Без названия'}; cam.classList.remove('on'); cam.innerHTML = ''; cam.style.background = ''; go('home'); publish(); };
+}
+/* Конвертация в MP4, если браузер записал не MP4 (запасной вариант, ffmpeg.wasm грузится только при необходимости) */
+let ffp = null;
+function loadFF() {
+  return ffp || (ffp = (async () => {
+    const lib = u => new Promise((ok, no) => { const e = document.createElement('script'); e.src = u; e.onload = ok; e.onerror = no; document.head.appendChild(e); });
+    const B = 'https://cdn.jsdelivr.net/npm/', C = B + '@ffmpeg/core@0.12.6/dist/umd/', F = B + '@ffmpeg/ffmpeg@0.12.10/dist/umd/';
+    await lib(F + 'ffmpeg.js'); await lib(B + '@ffmpeg/util@0.12.1/dist/umd/index.js');
+    const ff = new window.FFmpegWASM.FFmpeg(), tb = window.FFmpegUtil.toBlobURL;
+    await ff.load({coreURL: await tb(C + 'ffmpeg-core.js', 'text/javascript'), wasmURL: await tb(C + 'ffmpeg-core.wasm', 'application/wasm'), classWorkerURL: await tb(F + '814.ffmpeg.js', 'text/javascript')});
+    return ff;
+  })());
+}
+async function toMp4(blob) {
+  if (/^video\/mp4/.test(blob.type) || blob.size > 40e6) return blob; // длинные файлы не перекодируем (слишком долго)
+  try {
+    toast('Конвертируем в MP4…');
+    const ff = await loadFF();
+    await ff.writeFile('in.webm', await window.FFmpegUtil.fetchFile(blob));
+    await ff.exec(['-i', 'in.webm', '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '30', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '64k', '-movflags', '+faststart', 'out.mp4']);
+    const out = await ff.readFile('out.mp4');
+    ff.deleteFile('in.webm').catch(() => {}); ff.deleteFile('out.mp4').catch(() => {});
+    return new Blob([out], {type: 'video/mp4'});
+  } catch (e) { ffp = null; return blob; }
+}
+/* Длинное видео режем без перекодирования на куски по ~60 с: первый грузится за секунды, остальные подтягиваются пока он играет */
+async function segment(blob) {
+  try {
+    toast('Режем на части для быстрой загрузки…');
+    const ff = await loadFF();
+    await ff.writeFile('in.mp4', await window.FFmpegUtil.fetchFile(blob));
+    await ff.exec(['-i', 'in.mp4', '-map', '0:v:0', '-map', '0:a:0?', '-c', 'copy', '-f', 'segment', '-segment_time', '60', '-reset_timestamps', '1', '-segment_format', 'mp4', '-segment_format_options', 'movflags=+faststart', 'seg%03d.mp4']);
+    const names = (await ff.listDir('/')).map(x => x.name).filter(x => /^seg\d+\.mp4$/.test(x)).sort(), out = [];
+    for (const nm of names) { out.push(new Blob([await ff.readFile(nm)], {type: 'video/mp4'})); ff.deleteFile(nm).catch(() => {}); }
+    ff.deleteFile('in.mp4').catch(() => {});
+    return out.length > 1 ? out : null;
+  } catch (e) { ffp = null; return null; } // не вышло — загрузим одним файлом
+}
+const RAW = CHUNK / 4 * 3; // байт на кусок = ровно CHUNK символов base64
+const readB64 = b => new Promise((ok, no) => { const f = new FileReader(); f.onload = () => ok(f.result.slice(f.result.indexOf(',') + 1)); f.onerror = no; f.readAsDataURL(b); });
+async function publish() {
+  if (!pending) return;
+  if (!me) { needAuth(); return; }
+  const p = pending; pending = null;
+  let n = null;
+  try {
+    toast('Подготовка видео…');
+    const blob = await toMp4(p.blob), mime = blob.type.split(';')[0] || 'video/mp4';
+    if (blob.size > MAXV) return toast('Видео больше 200 МБ');
+    let pieces = [blob];
+    if (p.dur > 90 && blob.size > 8e6) pieces = (await segment(blob)) || pieces;
+    const multi = pieces.length > 1, counts = pieces.map(b => Math.ceil(b.size / RAW)), jobs = [];
+    n = push(ref(db, 'videos'));
+    pieces.forEach((b, k) => { for (let q = 0; q < counts[k]; q++) jobs.push([`videoFiles/${n.key}/${multi ? 's' + k + '/' : ''}p${q}`, b, q]); });
+    await set(n, Object.assign({title: p.title, uid: me.uid, thumb: p.th, dur: p.dur, mime, size: blob.size, views: 0, likes: 0, dislikes: 0, created: Date.now(), ready: false},
+      multi ? {segs: counts, parts: jobs.length} : {parts: counts[0]}));
+    for (let i = 0; i < jobs.length; i += 8) {
+      await Promise.all(jobs.slice(i, i + 8).map(async ([path, b, q]) => set(ref(db, path), await readB64(b.slice(q * RAW, (q + 1) * RAW)))));
+      toast(`Отправка ${Math.round(Math.min(jobs.length, i + 8) / jobs.length * 100)}%`);
+    }
+    await update(n, {ready: true});
+    toast('Видео успешно отправлено и опубликовано');
+  } catch (e) {
+    if (n) { await remove(ref(db, 'videoFiles/' + n.key)).catch(() => {}); await remove(n).catch(() => {}); }
+    toast('Не удалось опубликовать видео');
+  }
+}
+</script>
+</body>
+</html>
